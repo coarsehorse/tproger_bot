@@ -17,7 +17,8 @@ app.get('/', function(request, response) {
   response.write(body);
 
   return response.end();*/
-  response.render(url.parse(request.url, true)['query']['hub.challenge']);
+  //response.render('pages/fb');
+  return response.send(request.query['hub.challenge']);
 });
 
 app.listen(app.get('port'), function() {
