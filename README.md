@@ -1,39 +1,72 @@
-# node-js-getting-started
+# Facebot
 
-A barebones Node.js app using [Express 4](http://expressjs.com/).
+This is a client for Facebook Messenger Platform API.
 
-This application supports the [Getting Started with Node on Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs) article - check it out.
+## Library Design
 
-## Running Locally
+Connection layer has two implementions:
+* [Http4s](https://github.com/http4s/http4s)
+* [Akka HTTP](http://doc.akka.io/docs/akka/2.4.11/scala/http/index.html)
 
-Make sure you have [Node.js](http://nodejs.org/) and the [Heroku CLI](https://cli.heroku.com/) installed.
-
-```sh
-$ git clone git@github.com:heroku/node-js-getting-started.git # or clone your own fork
-$ cd node-js-getting-started
-$ npm install
-$ npm start
+Connection works as a REST server to process Facebook Webhooks and a client to reply to bot with send method:
+```scala
+  def send[R](endpoint: String,
+              params: Map[String, String],
+              bodyOpt: Option[String],
+              parseResponse: String => R): F[R]
 ```
+As a serialization library it uses [Pushka](https://github.com/fomkin/pushka).
 
-Your app should now be running on [localhost:5000](http://localhost:5000/).
+## Common Usage
+In `facebot/akkahttp/src/main/scala/runDebug.scala` create `AkkaHttpConnection` object, provide it with `ActorSystem`, pass `Credentials` and `EventHandler` as parameters.
+```scala
+    implicit val system = ActorSystem("facebotActorSystem")
+    implicit val materializer = ActorMaterializer()
+    implicit val executionContext = system.dispatcher
 
-## Deploying to Heroku
-
+    val facebotConnection = AkkaHttpConnection(Credentials(
+      "ACCESS_TOKEN",
+      "VERIFY_TOKEN")) {
+      case sendApi @ Event(_, Messaging.MessageReceived(sender, _, message))
+          if !message.isEcho =>
+        sendApi.sendMessage(sender, Message("MESSAGE_TEXT"), Regular)
+    }
 ```
-$ heroku create
-$ git push heroku master
-$ heroku open
+Then initialize HTTP server and pass facebook REST route from `AkkaHttpConnection` object.
+```scala
+    val bindingFuture =
+      Http().bindAndHandle(facebotConnection.facebookRestRoute, "localhost", 8701)
 ```
-or
+You can run it with `sbt 'project akkahttp' run`
+```scala
+import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
+import akka.stream.ActorMaterializer
+import co.datamonsters.facebot._
+import co.datamonsters.facebot.api.{Message, Messaging}
+import co.datamonsters.facebot.api.NotificationType.Regular
+import scala.io.StdIn
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+object runDebug {
+  def main(args: Array[String]): Unit = {
 
-## Documentation
+    implicit val system = ActorSystem("facebotActorSystem")
+    implicit val materializer = ActorMaterializer()
+    implicit val executionContext = system.dispatcher
 
-For more information about using Node.js on Heroku, see these Dev Center articles:
+    val facebotConnection = AkkaHttpConnection(Credentials(
+      "ACCESS_TOKEN",
+      "VERIFY_TOKEN")) {
+      case sendApi @ Event(_, Messaging.MessageReceived(sender, _, message))
+          if !message.isEcho =>
+        sendApi.sendMessage(sender, Message("MESSAGE_TEXT"), Regular)
+    }
 
-- [Getting Started with Node.js on Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs)
-- [Heroku Node.js Support](https://devcenter.heroku.com/articles/nodejs-support)
-- [Node.js on Heroku](https://devcenter.heroku.com/categories/nodejs)
-- [Best Practices for Node.js Development](https://devcenter.heroku.com/articles/node-best-practices)
-- [Using WebSockets on Heroku with Node.js](https://devcenter.heroku.com/articles/node-websockets)
+    val bindingFuture =
+      Http().bindAndHandle(facebotConnection.facebookRestRoute, "localhost", 8701)
+    StdIn.readLine() // let it run until user presses return
+    bindingFuture.flatMap(_.unbind()).onComplete(_ => system.terminate())
+
+  }
+}
+```
