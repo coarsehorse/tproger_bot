@@ -18,7 +18,7 @@ app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
 });
 
-app.post('/webhook', function (req, res) {
+app.post('/', function (req, res) {
   var data = req.body;
 
   // Make sure this is a page subscription
