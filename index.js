@@ -10,16 +10,16 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 app.get('/', function(request, response) {
-  res.sendStatus(200);
-  //response.render('pages/fb');
-});
+  var body, headers, parsedRequest;
+  
+  parsedRequest = url.parse(request.url, true);
+  body = parsedRequest['query']['hub.challenge'];
+  response.write(body);
 
-app.post('/', function(request, response) {
-  res.sendStatus(200);
+  return response.end();
+  //response.render('pages/fb');
 });
 
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
 });
-
-
