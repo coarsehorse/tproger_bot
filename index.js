@@ -10,14 +10,14 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 app.get('/', function(request, response) {
-  var body, headers, parsedRequest;
+  /*var body, headers, parsedRequest;
   
   parsedRequest = url.parse(request.url, true);
   body = parsedRequest['query']['hub.challenge'];
   response.write(body);
 
-  return response.end();
-  //response.render('pages/fb');
+  return response.end();*/
+  response.render(url.parse(request.url, true)['query']['hub.challenge']);
 });
 
 app.listen(app.get('port'), function() {
