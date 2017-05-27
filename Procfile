@@ -1,1 +1,1 @@
-web: sbt 'project akkahttp' run
+web: target/scala-2.11/scala-messenger-bot-assembly-0.0.1 -Dhttp.port=${PORT}
