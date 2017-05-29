@@ -65,7 +65,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
 
           val messaging = (pageEntry \ "messaging").as[List[JsObject]]
           messaging.foreach { messagingEvent =>
-            println("\nhey doc I'm here\n")
+            Logger.debug(s"\nHey doc, see what I've found: $messagingEvent\n")
             receivedMessage(messagingEvent)
           }
         }
