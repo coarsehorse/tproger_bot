@@ -1,0 +1,3 @@
+GET     /facebook/webhook           controllers.Facebook.webhook
+
+POST    /facebook/webhook           controllers.Facebook.receiveMessage

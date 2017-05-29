@@ -1,19 +1,15 @@
-name := "scala-messenger-bot"
-organization := "com.cpuheater"
-version := "0.0.1"
+name := "testbot"
 
-scalaVersion in ThisBuild := "2.11.8"
+version := "1.0"
 
+lazy val `testbot` = (project in file(".")).enablePlugins(PlayScala)
 
-resolvers +=
-  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+scalaVersion := "2.11.8"
 
+libraryDependencies ++= Seq(jdbc, cache, ws, specs2 % Test)
 
-libraryDependencies ++= Seq(
- "commons-codec" % "commons-codec" % "1.10",
- "com.typesafe.akka" %% "akka-actor" % "2.4.14",
- "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
- "com.typesafe.akka" % "akka-slf4j_2.11" % "2.4.8",
- "com.typesafe.akka" %% "akka-http" % "10.0.0",
- "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.0"
-)
+unmanagedResourceDirectories in Test <+= baseDirectory(_ / "target/web/public/test")
+
+resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
+
+herokuAppName in Compile := "testbot1337"
