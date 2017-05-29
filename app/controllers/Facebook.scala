@@ -5,6 +5,7 @@ import javax.inject.Inject
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
+import play.api.Logger
 
 class Facebook @Inject() (ws: WSClient) extends Controller {
 
