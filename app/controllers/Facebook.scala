@@ -8,7 +8,7 @@ import play.api.mvc._
 import play.api.Logger
 
 class Facebook @Inject() (ws: WSClient) extends Controller {
-
+  Logger.debug("1) Start of ALL\n\n")
   def webhook = Action { req =>
     val VALIDATION_TOKEN = sys.env("VALIDATION_TOKEN")
 
