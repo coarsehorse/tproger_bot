@@ -1,3 +1,5 @@
+package utils
+
 import scala.util.{Try, Success, Failure}
 import scala.collection.JavaConverters._
 import org.jsoup.Jsoup
