@@ -70,7 +70,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
               a_t <- art_tags
               t <- a_t._2
             } yield utils.DB.addNewTagArticle(t, a_t._1)
-            sendTextMessage(senderID, s"Done writing into db by tag '$tag'")
+            //sendTextMessage(senderID, s"Done writing into db by tag '$tag'")
           //sendTextMessage(senderID, s"I will search in web by tag: '$tag'")
           case command("show", tag) =>
             val articles = utils.DB.getArticlesByTag(tag)
