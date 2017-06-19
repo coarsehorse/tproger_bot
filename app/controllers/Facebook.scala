@@ -61,9 +61,9 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
 
         messageText match {
           case command("find", tag) =>
-            sendTextMessage(recipientID, s"I will search in web by tag: \"$tag\"")
+            sendTextMessage(recipientID, s"I will search in web by tag: '$tag'")
           case command("show", tag) =>
-            sendTextMessage(recipientID, s"I will show from db by tag: \"$tag\"")
+            sendTextMessage(recipientID, s"I will show from db by tag: '$tag'")
           case "help" =>
             sendTextMessage(recipientID,
             """Available commands:
