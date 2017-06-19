@@ -26,11 +26,6 @@ object DB {
   val article = TableQuery[Article_db]
   val tag_article = TableQuery[TagArticle_db]
 
-  def main(args: Array[String]): Unit = { // Some tests here
-    //addNewTagArticle("unic_tag", "http:/unic1")
-    //println(getArticlesByTag("unic_tag")) //map (println(_))
-  }
-
   def addNewTagArticle(ins_tag: String, ins_url: String): Unit = {
     Database.forURL(connectionUrl, driver = "org.postgresql.Driver") withSession {
       implicit session =>
