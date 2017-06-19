@@ -63,18 +63,17 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
           case command("find", tag) =>
             sendTextMessage(senderID, s"I will search in web by tag: '$tag'")
           case command("show", tag) =>
-            sendTextMessage(senderID, s"I will show from db by tag: '$tag'")
+            //sendTextMessage(senderID, s"I will show from db by tag: '$tag'")
+            sendTextMessage(senderID, sys.env("DATABASE_URL").toString())
           case "help" =>
             sendTextMessage(senderID,
             """Available commands:
-
-                > **"find tag $tag"**
-                  - search for articles by $tag
-                > **"show tag $tag"**
-                  - show saved articles by $tag
-               where **$tag**
-                 - any available tag
-                  taht's satisfy regex: [\w\d-]+ )""")
+                find tag $tag
+               - search for articles by $tag
+                show tag $tag
+               - show saved articles by $tag
+               $tag - any available tag
+               satisfying re [\w\d-]+ )""")
           case _ =>
             sendTextMessage(senderID, "Command not recognized. Type \"help\" for more information")
         }
