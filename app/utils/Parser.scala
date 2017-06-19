@@ -5,7 +5,7 @@ import org.jsoup.nodes.Document
 import java.net.URLDecoder
 
 object Parser {
-  // Parse trproger for this tag
+  // Parse trproger for specified tag
   def searchFor(tag: String): List[(String, List[String])] = {
     // Request
     val url = "https://tproger.ru/tag/" + tag + "/"
@@ -61,8 +61,7 @@ object Parser {
     }
 
     val linksWithTags = a.map(_.attr("href")).toList.map(lnk =>
-      normalizeURL(lnk)
-    )
+      normalizeURL(lnk))
 
     def getTags(links: List[String]): List[String] = {
       def tag(link: String): String = {
