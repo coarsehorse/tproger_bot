@@ -70,7 +70,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
               a_t <- art_tags
               t <- a_t._2
             } yield utils.DB.addNewTagArticle(t, a_t._1)
-            //sendTextMessage(senderID, s"Done writing into db by tag '$tag'")
+            sendTextMessage(senderID, s"Done writing into db by tag '$tag'")
           //sendTextMessage(senderID, s"I will search in web by tag: '$tag'")
           case command("show", tag) =>
             val articles = utils.DB.getArticlesByTag(tag)
@@ -81,12 +81,14 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
           case "help" =>
             sendTextMessage(senderID,
             """Available commands:
-                find tag $tag
-               - search for articles by $tag
-                show tag $tag
-               - show saved articles by $tag
-               $tag - any available tag
-               satisfying re [\w\d-]+ """)
+               find tag $tag
+                 - search for articles by $tag on tproger.ru
+               show tag $tag
+                 - show saved(after search) articles by $tag
+               about
+                 - about this bot
+                 $tag - any available tag
+                 satisfying regex [\w\d-]+""")
           case "about" =>
             val aboutMessage = "This bot was completed within the framework of the dataRoot internship. It's open source project under the MIT license. Feel free to learn/fork/pule on Github: https://github.com/heroys6/tproger_bot"
             sendTextMessage(senderID, aboutMessage)
