@@ -86,7 +86,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
                 show tag $tag
                - show saved articles by $tag
                $tag - any available tag
-               satisfying re [\w\d-]+ )""")
+               satisfying re [\w\d-]+ """)
           case "about" =>
             val aboutMessage = "This bot was completed within the framework of the dataRoot internship. It's open source project under the MIT license. Feel free to learn/fork/pule on Github: https://github.com/heroys6/tproger_bot"
             sendTextMessage(senderID, aboutMessage)
