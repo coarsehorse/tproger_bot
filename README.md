@@ -7,6 +7,7 @@
 * <u>Jsoup library</u>
 
 DB model can be found here: [creation script](/create_db.sql)
+<br>
 Working deployed bot: [facebook page](https://www.facebook.com/tprogerResearch)
 
 I made my bot public too late. And Facebook App Review for Messenger still not validate it.
@@ -14,4 +15,4 @@ So if it not reply, please see screenshots and code. Thanks you for understandin
 
 **Screenshots:**
 
-<p align="center"><img src="/screen1.png"><img src="/screen0.png"></p>
+<p align="center"><img src="/screen_1.png"><img src="/screen_0.png"></p>
