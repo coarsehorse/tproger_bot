@@ -10,9 +10,6 @@ libraryDependencies ++= Seq(jdbc, cache, ws, specs2 % Test)
 
 libraryDependencies += "org.jsoup" % "jsoup" % "1.10.2"
 
-//libraryDependencies += "org.postgresql" % "postgresql" % "9.3-1102.jdbc41"
-//2.1.0
-
 libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "9.3-1100-jdbc4",
   "com.typesafe.slick" %% "slick" % "3.0.0"
