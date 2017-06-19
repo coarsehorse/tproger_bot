@@ -8,7 +8,6 @@ import play.api.mvc._
 import play.api.Logger
 
 class Facebook @Inject() (ws: WSClient) extends Controller {
-  Logger.debug("1) Start of ALL\n\n")
   def webhook = Action { req =>
     val VALIDATION_TOKEN = sys.env("VALIDATION_TOKEN")
 
@@ -17,10 +16,8 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
 
     (mode, verifyToken) match {
       case (Some("subscribe"), Some(VALIDATION_TOKEN)) =>
-        println("Validating webhook")
         Ok(req.getQueryString("hub.challenge").get)
       case _ =>
-        println("Failed validation. Make sure the validation tokens match.")
         Status(403)
     }
   }
@@ -33,46 +30,18 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
       case "page" =>
         // Iterate over each entry
         // There may be multiple if batched
-        /**
-          * {{{
-          * {
-          *   "object":"page",
-          *   "entry":[
-          *     {
-          *       "id":"PAGE_ID",
-          *       "time":1458692752478,
-          *       "messaging":[
-          *         {
-          *           "sender":{
-          *             "id":"USER_ID"
-          *           },
-          *           "recipient":{
-          *             "id":"PAGE_ID"
-          *           },
-          *
-          *           ...
-          *         }
-          *       ]
-          *     }
-          *   ]
-          * }
-          * }}}
-          */
-
         val entries = (data \ "entry").as[List[JsValue]]
+        
         entries.foreach { pageEntry =>
           //val pageID = (pageEntry \ "id").as[Long]
           //val timeOfEvent = (pageEntry \ "time").as[Long]
-
           val messaging = (pageEntry \ "messaging").as[List[JsObject]]
+          
           messaging.foreach { messagingEvent =>
-            Logger.debug(s"\nHey doc, see what I've found: $messagingEvent\n")
             receivedMessage(messagingEvent)
           }
         }
 
-        // Assume all went well.
-        //
         // You must send back a 200, within 20 seconds, to let us know you've
         // successfully received the callback. Otherwise, the request will time out.
         Status(200)
@@ -82,17 +51,28 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
   }
 
   private def receivedMessage(event: JsObject) = {
-    val senderID = (event \ "sender" \ "id").as[String]
+    //val senderID = (event \ "sender" \ "id").as[String]
     val recipientID = (event \ "recipient" \ "id").as[String]
-
     val maybeMessage = (event \ "message").asOpt[JsObject]
-    println {
-      "Received message for user %s and page %s with message: %s".format(senderID, recipientID, maybeMessage)
-    }
 
     maybeMessage.foreach { message =>
       (message \ "text").asOpt[String].foreach { messageText =>
-        sendTextMessage(senderID, messageText)
+        val command = """(\w+) tag ([\w\d-]+)""".r
+
+        messageText match {
+          case command("find", tag) =>
+            sendTextMessage(recipientID, s"I will search in web by tag: \"$tag\"")
+          case command("show", tag) =>
+            sendTextMessage(recipientID, s"I will show from db by tag: \"$tag\"")
+          case "help" =>
+            sendTextMessage(recipientID,
+            """Available commands:
+             \"find tag $tag\" - bot will search for articles by $tag
+             \"show tag $tag\" - bot will show saved articles from db by $tag
+            where $tag - any available tag(string which satisfy regex: [\w\d-]+)""")
+          case _ =>
+            sendTextMessage(recipientID, "Command not recognized. Type 'help' for more information")
+        }
       }
     }
   }
