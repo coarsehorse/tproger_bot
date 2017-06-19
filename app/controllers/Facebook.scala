@@ -67,9 +67,14 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
           case "help" =>
             sendTextMessage(senderID,
             """Available commands:
-                 "find tag $tag" - bot will search for articles by $tag
-                 "show tag $tag" - bot will show saved articles from db by $tag
-               where $tag - any available tag(string which satisfy regex: [\w\d-]+ )""")
+
+                > **"find tag $tag"**
+                  - search for articles by $tag
+                > **"show tag $tag"**
+                  - show saved articles by $tag
+               where **$tag**
+                 - any available tag
+                  taht's satisfy regex: [\w\d-]+ )""")
           case _ =>
             sendTextMessage(senderID, "Command not recognized. Type \"help\" for more information")
         }
