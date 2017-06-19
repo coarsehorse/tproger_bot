@@ -51,7 +51,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
   }
 
   private def receivedMessage(event: JsObject) = {
-    //val senderID = (event \ "sender" \ "id").as[String]
+    val senderID = (event \ "sender" \ "id").as[String]
     val recipientID = (event \ "recipient" \ "id").as[String]
     val maybeMessage = (event \ "message").asOpt[JsObject]
 
@@ -61,17 +61,17 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
 
         messageText match {
           case command("find", tag) =>
-            sendTextMessage(recipientID, s"I will search in web by tag: '$tag'")
+            sendTextMessage(senderID, s"I will search in web by tag: '$tag'")
           case command("show", tag) =>
-            sendTextMessage(recipientID, s"I will show from db by tag: '$tag'")
+            sendTextMessage(senderID, s"I will show from db by tag: '$tag'")
           case "help" =>
-            sendTextMessage(recipientID,
+            sendTextMessage(senderID,
             """Available commands:
              \"find tag $tag\" - bot will search for articles by $tag
              \"show tag $tag\" - bot will show saved articles from db by $tag
             where $tag - any available tag(string which satisfy regex: [\w\d-]+)""")
           case _ =>
-            sendTextMessage(recipientID, "Command not recognized. Type 'help' for more information")
+            sendTextMessage(senderID, "Command not recognized. Type 'help' for more information")
         }
       }
     }
@@ -84,7 +84,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
       .withQueryString("access_token" -> ACCESS_TOKEN)
       .post(Json.obj(
         "recipient" -> Json.obj("id" -> recipientID),
-        "message" -> Json.obj("text" -> messageText.toUpperCase)
+        "message" -> Json.obj("text" -> messageText)
       ))
   }
 }
