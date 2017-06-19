@@ -7,7 +7,10 @@ import org.jsoup.nodes.Document
 import java.net.URLDecoder
 
 object Parser {
-  // Parse trproger for specified tag
+  /**
+    * Parse trproger.ru for specific tag
+    * @param tag tag text e.g. 'java'
+    */
   def searchFor(tag: String): List[(String, List[String])] = {
     // Request
     val url = "https://tproger.ru/tag/" + tag + "/"
@@ -41,7 +44,11 @@ object Parser {
     makeListHrefTags(hrefs.toList)
   }
 
-  // Get hashtags from article URL
+  /**
+    * Get hashtags from article URL
+    * @param article_url search here for tags, article url
+    * @return list of tags
+    */
   def getTagsByURL(article_url: String): List[String] = {
     val article = Jsoup.connect(article_url)
       .userAgent("Mozilla")
