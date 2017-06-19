@@ -1,3 +1,5 @@
+package utils
+
 import scala.slick.driver.PostgresDriver.simple._
 import scala.util.{Try, Failure, Success}
 
@@ -21,7 +23,8 @@ object DB {
   }
 
   // DRY
-  val connectionUrl = "jdbc:postgresql://localhost:5432/tproger_bot?user=postgres&password=root"
+  val connectionUrl = sys.env("JDBC_DATABASE_URL").toString()
+  // local testing: "jdbc:postgresql://localhost:5432/tproger_bot?user=postgres&password=root"
   val tag = TableQuery[Tag_db]
   val article = TableQuery[Article_db]
   val tag_article = TableQuery[TagArticle_db]

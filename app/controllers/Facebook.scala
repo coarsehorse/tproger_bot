@@ -63,8 +63,9 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
           case command("find", tag) =>
             sendTextMessage(senderID, s"I will search in web by tag: '$tag'")
           case command("show", tag) =>
+            val articles = utils.DB.getArticlesByTag(tag)
+            sendTextMessage(senderID, s"Saved articles by tag '$tag':\n" + articles.mkString("\n"))
             //sendTextMessage(senderID, s"I will show from db by tag: '$tag'")
-            sendTextMessage(senderID, sys.env("DATABASE_URL").toString())
           case "help" =>
             sendTextMessage(senderID,
             """Available commands:
