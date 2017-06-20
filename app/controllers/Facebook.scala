@@ -64,7 +64,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
       (message \ "text").asOpt[String].foreach { messageText =>
         val command = """(\w+) tag ([\w\d-]+)""".r
 
-        messageText.toLowerCase() match { // Menu
+        messageText match { // Menu
           case command("find", tag) =>
             val art_tags = utils.Parser.searchFor(tag)
             val str_links = art_tags map (_._1) mkString("\n")
