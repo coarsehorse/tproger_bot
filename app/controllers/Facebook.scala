@@ -37,13 +37,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
         val entries = (data \ "entry").as[List[JsValue]]
         
         entries.foreach { pageEntry =>
-          //debug
-          print("Page entry: ")
-          println(pageEntry)
           val messaging = (pageEntry \ "messaging").as[List[JsObject]]
-          //debug
-          print("messaging: ")
-          println(messaging)
           messaging.foreach { messagingEvent =>
             receivedMessage(messagingEvent)
           }
@@ -68,15 +62,10 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
     maybeMessage match {
       case Some(message) =>
         (message \ "text").asOpt[String].foreach { messageText =>
-          //debug
-          print("Message text: ")
-          println(messageText)
           val command = """(\w+) tag ([\w\d-]+)""".r
 
           messageText match { // Menu
             case command("find", tag) =>
-              //debug
-              println("DEBUG: in find tag case")
               val art_tags = utils.Parser.searchFor(tag)
               val str_links = art_tags map (_._1) mkString("\n")
               sendTextMessage(senderID, s"Found articles by tag '$tag':\n"
