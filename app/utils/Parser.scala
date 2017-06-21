@@ -12,14 +12,13 @@ object Parser {
     * @param tag tag text e.g. 'java'
     */
   def searchFor(tag: String): List[(String, List[String])] = {
-    // Request
     val url = "https://tproger.ru/tag/" + tag + "/"
-
     var rootSearchPage = new Document("stub")
 
     Try({
       Jsoup.connect(url)
         .userAgent("Mozilla")
+        .maxBodySize(4096000)
         .get()
     }) match {
       case Success(doc) =>
@@ -50,18 +49,26 @@ object Parser {
     * @return list of tags
     */
   def getTagsByURL(article_url: String): List[String] = {
-    val article = Jsoup.connect(article_url)
-      .userAgent("Mozilla")
-      .get()
+    var article = new Document("stub")
+    Try({
+      Jsoup.connect(article_url)
+        .userAgent("Mozilla")
+        .maxBodySize(4096000)
+        .get()
+    }) match {
+      case Success(doc) =>
+        article = doc
+      case Failure(f) =>
+        println(f)
+      // Actions for aborting process
+    }
 
-    val tagsClass = article.getElementsByClass("entry-meta clearfix").asScala
-    val ul = tagsClass(0).getElementsByTag("ul").asScala
-    val li = ul(0).getElementsByTag("li").asScala
-    val a = li(0).getElementsByTag("a").asScala
+    val tag_regex = """(https://tproger.ru/tag/)(.+)/""".r
 
-    def normalizeURL(link: String): String = {
-      val regex = """(https://tproger.ru/tag/)(.+)/""".r
-      val found = regex.findAllIn(link)
+    val blocksWithLinks = article.select("[rel='tag']").asScala
+    val originalLinks = blocksWithLinks.map(_.attr("href")).toList // Cyrillic symbols encoded. It looks ugly
+    val linksWithTags = originalLinks map { link => // Cyrillic symbols decoded. Looks much better
+      val found = tag_regex.findAllIn(link)
       val n = found.next
       val encoded = found.group(2)
       val decoded = URLDecoder.decode(encoded, "UTF-8")
@@ -69,27 +76,15 @@ object Parser {
       found.group(1) + decoded + "/"
     }
 
-    val linksWithTags = a.map(_.attr("href")).toList.map(lnk =>
-      normalizeURL(lnk))
-
-    def getTags(links: List[String]): List[String] = {
-      def tag(link: String): String = {
-        val tag_reg = """https://tproger.ru/tag/([^/]+)/""".r
-        val found = tag_reg.findAllIn(link)
+    def getTags(links: List[String]): List[String] = links match {
+      case Nil => List()
+      case x :: xs =>
+        val found = tag_regex.findAllIn(x)
         val n = found.next
 
-        found.group(1)
-      }
-
-      links match {
-        case Nil => List()
-        case x :: xs =>
-          tag(x) :: getTags(xs)
-      }
+        found.group(2) :: getTags(xs)
     }
 
-    val tags = getTags(linksWithTags)
-
-    tags
+    getTags(linksWithTags)
   }
 }
