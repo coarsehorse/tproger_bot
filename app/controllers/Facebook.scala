@@ -37,8 +37,11 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
         val entries = (data \ "entry").as[List[JsValue]]
         
         entries.foreach { pageEntry =>
+          print("Page entry: ")
+          println(pageEntry)
           val messaging = (pageEntry \ "messaging").as[List[JsObject]]
-          
+          print("messaging: ")
+          println(messaging)
           messaging.foreach { messagingEvent =>
             receivedMessage(messagingEvent)
           }
