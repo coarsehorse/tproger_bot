@@ -32,12 +32,9 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
     (data \ "object").as[String] match {
       // Make sure this is a page subscription
       case "page" =>
-        (data \ "entry").asOpt[JsValue] match {
-          case Some(entry) =>
-            (entry \ "messaging").asOpt[JsObject] match {
-              case Some(messaging) =>
-                receivedMessage(messaging)
-            }
+        (data \ "entry" \ "messaging").asOpt[JsObject] match {
+          case Some(messaging) =>
+            receivedMessage(messaging)
         }
 
         // We must send back a 200, within 20 seconds, to let Facebook know we've
@@ -72,7 +69,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
                 a_t <- art_tags
                 t <- a_t._2
               } yield utils.DB.addNewTagArticle(t, a_t._1)
-              sendTextMessage(senderID, s"Done writing into db by tag '$tag'")
+              //sendTextMessage(senderID, s"Done writing into db by tag '$tag'")
 
             case command("show", tag) =>
               val articles = utils.DB.getArticlesByTag(tag)
