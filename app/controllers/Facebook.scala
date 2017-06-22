@@ -32,7 +32,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
     (data \ "object").as[String] match {
       // Make sure this is a page subscription
       case "page" =>
-        (data \ "entry" \ "messaging").asOpt[JsObject] match {
+        (data \ "entry" \ "messaging").asOpt[JsValue] match {
           case Some(messaging) =>
             receivedMessage(messaging)
         }
@@ -49,7 +49,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
     * Handle user message
     * @param event user message with auxiliary data
     */
-  private def receivedMessage(event: JsObject) = {
+  private def receivedMessage(event: JsValue) = {
     val senderID = (event \ "sender" \ "id").as[String]
     val maybeMessage = (event \ "message").asOpt[JsObject]
 
