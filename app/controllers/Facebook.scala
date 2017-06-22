@@ -55,7 +55,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
     * @param message user message
     */
   private def commandHandler(senderId: String, message: String) = {
-    val command = """(\w+) tag ([\w\d-]+)""".r
+    val command = """(\w+) tag ([А-Яа-я\w\d-]+)""".r // unfortunately simple \w not matches cyrillic
 
     message match {
       case command("find", tag) =>
@@ -65,6 +65,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
           sendTextMessage(senderId, s"No articles by tag '$tag' was found on tproger.ru")
         else {
           val str_links = art_tags map (_._1) mkString("\n")
+
           sendTextMessage(senderId,
             s"Found articles by tag '$tag':\n"
             + str_links + "\n"
