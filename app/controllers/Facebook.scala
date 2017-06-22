@@ -84,15 +84,15 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
             case "help" =>
               sendTextMessage(senderID,
                 """Available commands:
-               find tag tagName
-                 - search for articles by $tag on tproger.ru
-               show tag tagName
-                 - show saved(after search) articles by $tag
+               find tag tagValue
+                 - search by tagValue on tproger.ru
+               show tag tagValue
+                 - show saved(in DB) articles by tagValue
                about
                  - about this bot
                help
                  - this message
-               P.S. tagName - any available tag
+               P.S. tagValue - any available tag
                satisfying regex [\w\d-]+
                Example:
                show tag scala
