@@ -28,30 +28,20 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
     */
   def receiveMessage = Action(parse.tolerantJson) { req =>
     val data = req.body
-    // debug/*
-    /*import java.nio.file.{Paths, Files}
-    import java.nio.charset.StandardCharsets
-    Files.write(Paths.get("json.txt"), Json.prettyPrint(data).getBytes(StandardCharsets.UTF_8))*/
-    // */debug
-    println(Json.prettyPrint(data))
 
     (data \ "object").as[String] match {
+
       // Make sure this is a page subscription
       case "page" =>
-        // Iterate over each entry
-        // There may be multiple if batched
-        val entries = (data \ "entry").as[List[JsValue]]
+        val entry = (data \ "entry").as[JsArray]
+        val messaging = (entry(0) \ "messaging").as[JsArray]
 
-        entries.foreach { pageEntry =>
-          val messaging = (pageEntry \ "messaging").as[List[JsObject]]
-          messaging.foreach { messagingEvent =>
-            receivedMessage(messagingEvent)
-          }
-        }
+        receivedMessage(messaging(0).as[JsObject])
 
         // We must send back a 200, within 20 seconds, to let Facebook know we've
         // successfully received the callback. Otherwise, the request will time out.
         Status(200)
+
       case _ =>
         Status(403)
     }
