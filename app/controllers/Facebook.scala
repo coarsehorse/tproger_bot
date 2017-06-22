@@ -32,18 +32,15 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
     (data \ "object").as[String] match {
       // Make sure this is a page subscription
       case "page" =>
-        // Iterate over each entry
-        // There may be multiple if batched
-        val entries = (data \ "entry").as[List[JsValue]]
-        
-        entries.foreach { pageEntry =>
-          val messaging = (pageEntry \ "messaging").as[List[JsObject]]
-          messaging.foreach { messagingEvent =>
-            receivedMessage(messagingEvent)
-          }
+        (data \ "entry").asOpt[JsValue] match {
+          case Some(entry) =>
+            (entry \ "messaging").asOpt[JsObject] match {
+              case Some(messaging) =>
+                receivedMessage(messaging)
+            }
         }
 
-        // You must send back a 200, within 20 seconds, to let us know you've
+        // We must send back a 200, within 20 seconds, to let Facebook know we've
         // successfully received the callback. Otherwise, the request will time out.
         Status(200)
       case _ =>
