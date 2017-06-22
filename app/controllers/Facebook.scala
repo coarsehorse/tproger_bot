@@ -28,13 +28,25 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
     */
   def receiveMessage = Action(parse.tolerantJson) { req =>
     val data = req.body
+    // debug/*
+    /*import java.nio.file.{Paths, Files}
+    import java.nio.charset.StandardCharsets
+    Files.write(Paths.get("json.txt"), Json.prettyPrint(data).getBytes(StandardCharsets.UTF_8))*/
+    // */debug
+    println(Json.prettyPrint(data))
 
     (data \ "object").as[String] match {
       // Make sure this is a page subscription
       case "page" =>
-        (data \ "entry" \ "messaging").asOpt[JsValue] match {
-          case Some(messaging) =>
-            receivedMessage(messaging)
+        // Iterate over each entry
+        // There may be multiple if batched
+        val entries = (data \ "entry").as[List[JsValue]]
+
+        entries.foreach { pageEntry =>
+          val messaging = (pageEntry \ "messaging").as[List[JsObject]]
+          messaging.foreach { messagingEvent =>
+            receivedMessage(messagingEvent)
+          }
         }
 
         // We must send back a 200, within 20 seconds, to let Facebook know we've
@@ -49,7 +61,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
     * Handle user message
     * @param event user message with auxiliary data
     */
-  private def receivedMessage(event: JsValue) = {
+  private def receivedMessage(event: JsObject) = {
     val senderID = (event \ "sender" \ "id").as[String]
     val maybeMessage = (event \ "message").asOpt[JsObject]
 
