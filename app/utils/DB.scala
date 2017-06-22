@@ -66,9 +66,8 @@ object DB {
           t_a <- tag_article if t_a.tag_id === t.tag_id
           a <- article if a.article_id === t_a.article_id
         } yield (a.article_url)
-        val urls = req.list
 
-        urls
+        req.list
     }
   }
 } 
