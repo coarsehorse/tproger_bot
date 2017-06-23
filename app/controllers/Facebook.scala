@@ -69,16 +69,28 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
             if (art_tags.length == 0)
               sendTextMessage(senderId, s"No articles by tag '$tag' was found on tproger.ru")
             else {
-              val str_links = art_tags map (_._1) mkString("\n")
+              val str_links = art_tags map (_._1) mkString("\n") // get only URLs
 
               sendTextMessage(senderId,
                 s"Found articles by tag '$tag':\n"
                   + str_links + "\n"
-                  + "Now writing into db ...")
-              for {
+                  + "This will be saved to the DB")
+
+              for { // write to the DB asynchronously
                 a_t <- art_tags
                 t <- a_t._2
-              } yield utils.DB.addNewTagArticle(t, a_t._1)
+              } Future {
+                utils.DB.addNewTagArticle(t, a_t._1)
+              } onFailure {
+                case e =>
+                  println(e)
+                  sendTextMessage(senderId,
+                    "Error occurs with writing to the DB\n"
+                      + s"data: tag='$t', url='${a_t._1}'\n"
+                      + "Error message:   "
+                      + e.getMessage
+                      + "\nPlease, send this message to developer")
+              }
             }
           case Failure(e) =>
             println(e)
