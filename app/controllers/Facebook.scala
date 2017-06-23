@@ -4,6 +4,9 @@ import javax.inject.Inject
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
+import scala.concurrent.Future
+import scala.util.{Success, Failure}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class Facebook @Inject() (ws: WSClient) extends Controller {
   /**
@@ -59,29 +62,48 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
 
     message match {
       case command("find", tag) =>
-        val art_tags = utils.Parser.searchFor(tag)
+        Future[List[(String, List[String])]] {
+          utils.Parser.searchFor(tag)
+        } onComplete {
+          case Success(art_tags) =>
+            if (art_tags.length == 0)
+              sendTextMessage(senderId, s"No articles by tag '$tag' was found on tproger.ru")
+            else {
+              val str_links = art_tags map (_._1) mkString("\n")
 
-        if (art_tags.length == 0)
-          sendTextMessage(senderId, s"No articles by tag '$tag' was found on tproger.ru")
-        else {
-          val str_links = art_tags map (_._1) mkString("\n")
-
-          sendTextMessage(senderId,
-            s"Found articles by tag '$tag':\n"
-            + str_links + "\n"
-            + "Now writing into db ...")
-          for {
-            a_t <- art_tags
-            t <- a_t._2
-          } yield utils.DB.addNewTagArticle(t, a_t._1)
+              sendTextMessage(senderId,
+                s"Found articles by tag '$tag':\n"
+                  + str_links + "\n"
+                  + "Now writing into db ...")
+              for {
+                a_t <- art_tags
+                t <- a_t._2
+              } yield utils.DB.addNewTagArticle(t, a_t._1)
+            }
+          case Failure(e) =>
+            println(e)
+            sendTextMessage(senderId,
+              "Sorry, there was a problem:\n"
+                + e.getMessage
+                + "\nPlease, send this message to developer")
         }
 
       case command("show", tag) =>
-        val articles = utils.DB.getArticlesByTag(tag)
-        if (articles.length == 0)
-          sendTextMessage(senderId, s"No saved articles by tag '$tag'")
-        else
-          sendTextMessage(senderId, s"Saved articles by tag '$tag':\n" + articles.mkString("\n"))
+        Future[List[String]] {
+          utils.DB.getArticlesByTag(tag)
+        } onComplete {
+          case Success(articles) =>
+            if (articles.length == 0)
+              sendTextMessage(senderId, s"No saved articles by tag '$tag'")
+            else
+              sendTextMessage(senderId, s"Saved articles by tag '$tag':\n" + articles.mkString("\n"))
+          case Failure(e) =>
+            println(e)
+            sendTextMessage(senderId,
+              "Sorry, there was a problem:\n"
+                + e.getMessage
+                + "\nPlease, send this message to developer")
+        }
 
       case "help" =>
         sendTextMessage(senderId,
