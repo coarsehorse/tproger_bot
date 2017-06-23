@@ -1,21 +1,20 @@
 # Scala bot for [tproger](https://tproger.ru)
 
 **Used:**
-* <u>Play framework</u>
-* <u>Slick framework</u>
-* <u>PostgreSQL</u>
-* <u>Jsoup library</u>
-* <u>Continuous integration with Heroku</u>
+* Play framework
+* Slick framework
+* PostgreSQL
+* Jsoup library
+* Continuous integration with Heroku
 
-DB model can be found here: [creation script](/create_db.sql)
+DB model: [creation script](/create_db.sql)
 <br>
 Working deployed bot: [facebook page](https://www.facebook.com/tprogerResearch)
 <br>
 TODO list: [TODO.md](/TODO.md)
-
-I made my bot public too late. And Facebook App Review for Messenger still not validate it.
-So if it not reply, please see screenshots and code. Thanks you for understanding.
+<br>
+Currently, the bot is under development, so it only replies to it's developers. Instead, please see screenshots and code. Thanks for understanding.
 
 **Screenshots:**
 
-<p align="center"><img src="/screen_1.png"><img src="/screen_0.png"></p>
+<p align="center"><img src="screenshots/scr0.png"><img src="screenshots/scr1.png"></p>
