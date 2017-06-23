@@ -79,7 +79,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
               for { // write to the DB asynchronously
                 a_t <- art_tags
                 t <- a_t._2
-              } Future {
+              } yield Future {
                 utils.DB.addNewTagArticle(t, a_t._1)
               } onFailure {
                 case e =>
