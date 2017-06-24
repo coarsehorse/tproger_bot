@@ -78,11 +78,12 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
             else {
               val str_links = art_tags.map(_._1).grouped(10).toList // get only URLs
 
-              str_links foreach { link =>
-                val group10 = link mkString "\n"
+              str_links foreach { links =>
+                val group10 = links mkString "\n"
 
                 //debug
                 println("Found links:\n" + group10)
+                Thread.sleep(1000) // not so fast - Fb wont like it
                 sendTextMessage(senderId,
                   s"Found articles by tag '$tag':\n"
                     + group10 + "\n")
