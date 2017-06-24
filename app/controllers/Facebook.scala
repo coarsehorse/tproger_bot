@@ -85,17 +85,20 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
                   + str_links + "\n"
                   + "This will be saved to the DB")
 
-              for { // write to the DB asynchronously
+              val t_a_rows = for { // prepare tag_article rows
                 a_t <- art_tags
                 t <- a_t._2
-              } yield Future {
-                utils.DB.addNewTagArticle(t, a_t._1)
+              } yield (t, a_t._1)
+
+              Future { // write to the DB
+                t_a_rows map (row =>
+                  utils.DB.addNewTagArticle(row._1, row._2))
               } onFailure {
                 case e =>
                   println(e)
                   sendTextMessage(senderId,
                     "Error occurs with writing to the DB\n"
-                      + s"data: tag='$t', url='${a_t._1}'\n"
+                      //+ s"data: tag='{$row._1}', url='${row._2}'\n"
                       + "Error message:   "
                       + e.getMessage
                       + "\nPlease, send this message to developer")
