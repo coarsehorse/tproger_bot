@@ -5,7 +5,7 @@ import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import scala.concurrent.Future
-import scala.util.{Success, Failure}
+import scala.util.{Try, Success, Failure}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class Facebook @Inject() (ws: WSClient) extends Controller {
