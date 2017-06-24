@@ -83,11 +83,11 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
 
                 //debug
                 println("Found links:\n" + group10)
-                Thread.sleep(1000) // not so fast - Fb wont like it
                 sendTextMessage(senderId,
                   s"Found articles by tag '$tag':\n"
                     + group10 + "\n")
                     //+ "This will be saved to the DB")
+                Thread.sleep(1000) // not so fast - Fb wont like it
               }
 
               val t_a_rows = for { // prepare tag_article rows
