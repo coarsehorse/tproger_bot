@@ -85,7 +85,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
                 println("Found links:\n" + group10)
                 sendTextMessage(senderId,
                   s"Found articles by tag '$tag':\n"
-                    + group10 + "\n"
+                    + group10 + "\n")
                     //+ "This will be saved to the DB")
               }
 
