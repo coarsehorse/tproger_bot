@@ -36,12 +36,19 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
 
       // Make sure this is a page subscription
       case "page" =>
-        val entry = (data \ "entry").as[JsArray]
-        val messaging = (entry(0) \ "messaging").as[JsArray]
-        val senderId = (messaging(0) \ "sender" \ "id").as[String]
-        val message = (messaging(0) \ "message" \ "text").as[String]
-
-        commandHandler(senderId, message)
+        Try {
+        	val entry = (data \ "entry").as[JsArray]
+        	val messaging = (entry(0) \ "messaging").as[JsArray]
+        	val senderId = (messaging(0) \ "sender" \ "id").as[String]
+        	val message = (messaging(0) \ "message" \ "text").as[String]
+        	(senderId, message)
+        } match {
+        	case Success(s) =>
+        		commandHandler(s._1, s._2)
+        	case Failure(f) =>
+        		println("JSON:\n" + Json.prettyPrint(data))
+        		println("Exception:\n" + f)
+        }
 
         // We must send back a 200, within 20 seconds, to let Facebook know we've
         // successfully received the callback. Otherwise, the request will time out.
