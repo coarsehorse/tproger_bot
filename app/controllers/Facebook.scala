@@ -72,10 +72,17 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
           utils.Parser.searchFor(tag)
         } onComplete {
           case Success(art_tags) =>
-            if (art_tags.length == 0)
+            if (art_tags.length == 0) {
               sendTextMessage(senderId, s"No articles by tag '$tag' was found on tproger.ru")
+            }
             else {
               val str_links = art_tags map (_._1) mkString("\n") // get only URLs
+              //debug
+              var i = 0
+              val f = for {
+                link <- art_tags map (_._1); i += 1;
+              } yield (i.toString + ". " + link)
+              println("Found links:\n" + f)
 
               sendTextMessage(senderId,
                 s"Found articles by tag '$tag':\n"
