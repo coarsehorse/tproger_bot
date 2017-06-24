@@ -77,17 +77,19 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
             }
             else {
               val str_links = art_tags.map(_._1).grouped(10).toList // get only URLs
-
+              //debug
+              println(str_links)
               str_links foreach { links =>
                 val group10 = links mkString "\n"
 
                 //debug
+                println("\ngroup10\n")
                 println("Found links:\n" + group10)
                 sendTextMessage(senderId,
                   s"Found articles by tag '$tag':\n"
                     + group10 + "\n")
                     //+ "This will be saved to the DB")
-                Thread.sleep(1000) // not so fast - Fb wont like it
+                Thread.sleep(500) // not so fast - Fb wont like it
               }
 
               val t_a_rows = for { // prepare tag_article rows
