@@ -78,11 +78,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
             else {
               val str_links = art_tags map (_._1) mkString("\n") // get only URLs
               //debug
-              var i = 0
-              val f = for {
-                link <- art_tags map (_._1); i += 1;
-              } yield (i.toString + ". " + link)
-              println("Found links:\n" + f)
+              println("Found links:\n" + str_links)
 
               sendTextMessage(senderId,
                 s"Found articles by tag '$tag':\n"
