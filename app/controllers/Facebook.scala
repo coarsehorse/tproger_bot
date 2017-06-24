@@ -76,14 +76,18 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
               sendTextMessage(senderId, s"No articles by tag '$tag' was found on tproger.ru")
             }
             else {
-              val str_links = art_tags map (_._1) mkString("\n") // get only URLs
-              //debug
-              println("Found links:\n" + str_links)
+              val str_links = art_tags.map(_._1).grouped(10).toList // get only URLs
 
-              sendTextMessage(senderId,
-                s"Found articles by tag '$tag':\n"
-                  + str_links + "\n"
-                  + "This will be saved to the DB")
+              str_links foreach { link =>
+                val group10 = link mkString "\n"
+
+                //debug
+                println("Found links:\n" + group10)
+                sendTextMessage(senderId,
+                  s"Found articles by tag '$tag':\n"
+                    + group10 + "\n"
+                    //+ "This will be saved to the DB")
+              }
 
               val t_a_rows = for { // prepare tag_article rows
                 a_t <- art_tags
