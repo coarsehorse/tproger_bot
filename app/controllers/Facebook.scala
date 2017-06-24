@@ -27,27 +27,26 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
   }
 
   /**
-    * Handle Facebook POST request
+    * Handle Facebook POST requests
     */
   def receiveMessage = Action(parse.tolerantJson) { req =>
     val data = req.body
 
     (data \ "object").as[String] match {
-
       // Make sure this is a page subscription
       case "page" =>
         Try {
-        	val entry = (data \ "entry").as[JsArray]
-        	val messaging = (entry(0) \ "messaging").as[JsArray]
-        	val senderId = (messaging(0) \ "sender" \ "id").as[String]
-        	val message = (messaging(0) \ "message" \ "text").as[String]
-        	(senderId, message)
+          val entry = (data \ "entry").as[JsArray]
+          val messaging = (entry(0) \ "messaging").as[JsArray]
+          val senderId = (messaging(0) \ "sender" \ "id").as[String]
+          val message = (messaging(0) \ "message" \ "text").as[String]
+          (senderId, message)
         } match {
-        	case Success(s) =>
-        		commandHandler(s._1, s._2)
-        	case Failure(f) =>
-        		println("JSON:\n" + Json.prettyPrint(data))
-        		println("Exception:\n" + f)
+          case Success(s) =>
+            commandHandler(s._1, s._2)
+          case Failure(f) =>
+            println("JSON:\n" + Json.prettyPrint(data))
+            println("Exception:\n" + f)
         }
 
         // We must send back a 200, within 20 seconds, to let Facebook know we've
