@@ -76,20 +76,15 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
               sendTextMessage(senderId, s"No articles by tag '$tag' was found on tproger.ru")
             }
             else {
-              val str_links = art_tags.map(_._1).grouped(15).toList // get only URLs
-              //debug
-              println(str_links)
-              str_links foreach { links =>
-                val group10 = links mkString "\n"
+              val arts_grouped = art_tags.map(_._1).grouped(5).toList // get only URLs
 
-                //debug
-                println("\ngroup10\n")
-                println("Found links:\n" + group10)
+              arts_grouped foreach { group =>
+                val group5 = group mkString "\n"
+
                 sendTextMessage(senderId,
                   s"Found articles by tag '$tag':\n"
-                    + group10 + "\n")
-                    //+ "This will be saved to the DB")
-                Thread.sleep(300) // not so fast - Fb won't save order of messages
+                    + group5 + "\n")
+                Thread.sleep(100) // not so fast - Fb won't save order of messages
               }
 
               val t_a_rows = for { // prepare tag_article rows
@@ -98,14 +93,13 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
               } yield (t, a_t._1)
 
               Future { // write to the DB
-                t_a_rows map (row =>
+                t_a_rows map ( row =>
                   utils.DB.addNewTagArticle(row._1, row._2))
               } onFailure {
                 case e =>
                   println(e)
                   sendTextMessage(senderId,
                     "Error occurs with writing to the DB\n"
-                      //+ s"data: tag='{$row._1}', url='${row._2}'\n"
                       + "Error message:   "
                       + e.getMessage
                       + "\nPlease, send this message to developer")
@@ -124,10 +118,18 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
           utils.DB.getArticlesByTag(tag)
         } onComplete {
           case Success(articles) =>
-            if (articles.length == 0)
+            if (articles.length == 0) {
               sendTextMessage(senderId, s"No saved articles by tag '$tag'")
-            else
-              sendTextMessage(senderId, s"Saved articles by tag '$tag':\n" + articles.mkString("\n"))
+            }
+            else {
+              val arts_grouped = articles grouped 5
+
+              arts_grouped foreach { group =>
+                val group5 = group mkString "\n"
+
+                sendTextMessage(senderId, s"Saved articles by tag '$tag':\n" + group5)
+              }
+            }
           case Failure(e) =>
             println(e)
             sendTextMessage(senderId,
