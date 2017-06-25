@@ -95,13 +95,16 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
               Future { // write to the DB
                 t_a_rows map ( row =>
                   utils.DB.addNewTagArticle(row._1, row._2))
-              } onFailure {
-                case e =>
-                  println(e)
+              } onComplete {
+                case Success(s) =>
+                  sendTextMessage(senderId,
+                    s"Articles that I found by tag '$tag' were successfully written to the database")
+                case Failure(f) =>
+                  println(f)
                   sendTextMessage(senderId,
                     "Error occurs with writing to the DB\n"
                       + "Error message:   "
-                      + e.getMessage
+                      + f.getMessage
                       + "\nPlease, send this message to developer")
               }
             }
@@ -119,7 +122,7 @@ class Facebook @Inject() (ws: WSClient) extends Controller {
         } onComplete {
           case Success(articles) =>
             if (articles.length == 0) {
-              sendTextMessage(senderId, s"No saved articles by tag '$tag'")
+              sendTextMessage(senderId, s"Nothing found in the database by tag '$tag'")
             }
             else {
               val arts_grouped = articles grouped 5
